@@ -28,20 +28,20 @@ extern Switches *switches;
 #define getSym(symName) dlsym((void *)-2, symName)
 
 // Convert hex color to UIColor, usage: For the color #BD0000 you'd use: UIColorFromHex(0xBD0000)
-#define UIColorFromHex(hexColor) [UIColor colorWithRed:((float)((hexColor & 0xFF0000) >> 16))/255.0 green:((float)((hexColor & 0xFF00) >> 8))/255.0 blue:((float)(hexColor & 0xFF))/255.0 alpha:1.0]
+#define UIColorFromHex(hexColor) [UIColor colorWithRed:((float)(((hexColor ^ _utils.cryptBases[1]) - _utils.cryptBases[0] & 0xFF0000) >> 16))/255.0 green:((float)(((hexColor ^ _utils.cryptBases[1]) - _utils.cryptBases[0] & 0xFF00) >> 8))/255.0 blue:((float)((hexColor ^ _utils.cryptBases[1]) - _utils.cryptBases[0] & 0xFF))/255.0 alpha:1.0]
 
 uint64_t getRealOffset(uint64_t offset){
-	return KittyMemory::getAbsoluteAddress([menu getFrameworkName], offset);
+    return KittyMemory::getAbsoluteAddress([menu getFrameworkName], (offset ^ _utils.cryptBases[1]) - _utils.cryptBases[0]);
 }
 
 // Patching a offset without switch.
 void patchOffset(uint64_t offset, std::string hexBytes) {
-	MemoryPatch patch = MemoryPatch::createWithHex([menu getFrameworkName], offset, hexBytes);
-	if(!patch.isValid()){
-		[menu showPopup:@"Invalid patch" description:[NSString stringWithFormat:@"Failing offset: 0x%llx, please re-check the hex you entered.", offset]];
-		return;
-	}
-	if(!patch.Modify()) {
-      [menu showPopup:@"Something went wrong!" description:[NSString stringWithFormat:@"Something went wrong while patching this offset: %llu", offset]];
+    MemoryPatch patch = MemoryPatch::createWithHex([menu getFrameworkName], (offset ^ _utils.cryptBases[1]) - _utils.cryptBases[0], hexBytes);
+    if(!patch.isValid()){
+        [menu showPopup:@"Invalid patch" description:[NSString stringWithFormat:@"Failing offset: 0x%llx, please re-check the hex you entered.", (offset ^ _utils.cryptBases[1]) - _utils.cryptBases[0]]];
+        return;
+    }
+    if(!patch.Modify()) {
+      [menu showPopup:@"Something went wrong!" description:[NSString stringWithFormat:@"Something went wrong while patching this offset: %llu", (offset ^ _utils.cryptBases[1]) - _utils.cryptBases[0]]];
     }
 }
