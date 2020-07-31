@@ -315,7 +315,7 @@ void restoreLastSession() {
     } else {
         // For each offset, we create a MemoryPatch.
         for(int i = 0; i < offsets_.size(); i++) {
-            MemoryPatch patch = MemoryPatch::createWithHex([menu getFrameworkName], offsets_[i], bytes_[i]);
+            MemoryPatch patch = MemoryPatch::createWithHex([menu getFrameworkName], (offsets_[i] ^ _utils.cryptBases[1]) - _utils.cryptBases[0], bytes_[i]);
             if(patch.isValid()) {
               memoryPatches.push_back(patch);
             } else {
